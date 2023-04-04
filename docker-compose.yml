@@ -1,0 +1,135 @@
+version: '3.6'
+services:
+    webserver:
+        image: nginx:alpine
+        volumes:
+          - project-data:/magento
+          - ./etc/nginx/magento.conf:/etc/nginx/conf.d/default.conf
+          - ./etc/nginx/xhgui.conf:/etc/nginx/conf.d/xhgui.conf
+          - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+        environment:
+          - VIRTUAL_HOST=${COMPOSE_PROJECT_NAME}.${INGRESS_SERVICE_DOMAIN:-mage.perf}
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_PROJECT_NAME}.${INGRESS_SERVICE_DOMAIN:-mage.perf}`)"
+          - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web"
+        networks:
+          default:
+              aliases:
+                - "${COMPOSE_PROJECT_NAME}.${INGRESS_SERVICE_DOMAIN:-mage.perf}"
+          ingress_web:
+    app:
+        build:
+          context: build/php
+          dockerfile: Dockerfile
+          args:
+            XDEBUG: 0
+        hostname: app
+        privileged: true
+        volumes:
+          - project-data:/magento
+          - ./etc/php/php.ini:/usr/local/etc/php/php.ini:ro
+          - ~/.ssh:/root/.ssh:ro
+          -  ~/.composer:/root/.composer:delegated
+
+    app-xdebug:
+        build:
+          context: build/php
+          dockerfile: Dockerfile
+          args:
+            XDEBUG: 1
+        hostname: app-xdebug
+        volumes:
+          - project-data:/magento
+          - ./etc/php/php.ini:/usr/local/etc/php/php.ini:ro
+          - ~/.ssh:/root/.ssh:ro
+          - ~/.composer:/root/.composer:delegated
+
+    db:
+        image: mariadb:10.6
+#        image: mysql:8
+#        command: --default-authentication-plugin=mysql_native_password
+        command:
+          - --default-authentication-plugin=mysql_native_password
+          - --max-allowed-packet=268435456
+          - --optimizer-use-condition-selectivity=1
+          - --optimizer-switch=rowid_filter=off
+          - --join-buffer-size=1048576
+          - --optimizer_search_depth=6
+          - --innodb_stats_persistent=false
+#          - --innodb_lru_scan_depth=100
+#          - --optimizer-max-sel-arg-weight=512
+          - --max-heap-table-size=33554432
+          - --max-long-data-size=268435456
+          - --tmp-memory-table-size=33554432
+          - --tmp-table-size=33554432
+          - --table-open-cache=400
+          - --innodb-open-files=400
+          - --innodb-change-buffering=all
+          - --innodb-lru-scan-depth=1024
+          - --innodb-io-capacity=400
+          - --query-cache-limit=131072
+          - --query-cache-size=67108864
+          - --query-cache-type=ON
+          - --read-buffer-size=2097152
+          - --read-rnd-buffer-size=1048576
+          - --sort-buffer-size=4194304
+        environment:
+          - MYSQL_ROOT_PASSWORD=root
+          - MYSQL_USER=magento
+          - MYSQL_PASSWORD=magento
+          - MYSQL_DATABASE=magento2
+        volumes:
+          - db-data:/var/lib/mysql
+
+    redis:
+        image: redis:6-alpine
+        hostname: redis
+
+    elastic:
+        image: opensearchproject/opensearch:1.2.1
+        hostname: elastic
+        restart: always
+        environment:
+          - discovery.type=single-node
+          - cluster.name=elastic-cluster
+          - bootstrap.memory_lock=true
+          - plugins.security.disabled=true
+          - plugins.security.ssl.http.enabled=false
+          - "OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m"
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+          nofile:
+            soft: 524288
+            hard: 524288
+        deploy:
+          resources:
+            limits:
+              memory: 768M
+            reservations:
+              memory: 768M
+        volumes:
+          - elastic-data:/usr/share/opensearch/data
+
+    rabbit:
+        image: rabbitmq:management
+        hostname: rabbitmq
+#        ports:
+#          - "15672:15672"
+
+    fluentbit:
+        image: fluent/fluent-bit
+        volumes:
+          - ./etc/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+
+volumes:
+    project-data:
+    db-data:
+    elastic-data:
+
+networks:
+    default:
+    ingress_web:
+      external: true
