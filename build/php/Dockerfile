@@ -1,8 +1,8 @@
+
 #
 ARG PHP_VERSION=8.1
 
-
-FROM php:${PHP_VERSION}-fpm-alpine AS build
+FROM php:${PHP_VERSION}-fpm-alpine3.15 AS build
 
 
 RUN apk add --update --no-cache ${PHPIZE_DEPS} bash git tar \
@@ -10,7 +10,7 @@ RUN apk add --update --no-cache ${PHPIZE_DEPS} bash git tar \
     libsodium-dev \
     libxslt-dev \
     icu-dev \
- #   libressl-dev \
+ #  libressl-dev \
     libzip-dev \
     oniguruma-dev \
 # swoole dependensies
@@ -96,8 +96,9 @@ RUN php --version && php -m
 # RUN php -r 'print_r(gd_info());'
 RUN cat /etc/alpine-release
 
-FROM alpine:3.17 AS base
+FROM alpine:3.15 AS base
 
+ENV APP_ROOT=/magento
 ENV NOT_ROOT_USER=www-data
 
 
@@ -111,7 +112,7 @@ RUN apk add --update --no-cache \
 		bash \
 		git \
 		vim \
-        unzip \
+    unzip \
 		curl \
 		openssh-client \
 		procps \
@@ -143,7 +144,7 @@ RUN apk add --update --no-cache \
 
 COPY env/php-fpm.conf /usr/local/etc/php-fpm.conf
 
-RUN curl -sS https://getcomposer.org/installer | php --  --2.2 --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php -- --2.2 --install-dir=/usr/local/bin --filename=composer
 
 
 #Setup sendmail in php
@@ -158,12 +159,12 @@ RUN rm -rf /var/cache/apk/* && \
 
 ### Collapse layers ###
 
-FROM alpine:3.16
+FROM alpine:3.15
 COPY --from=base / .
 
 
-ARG APP_ROOT="/magento"
-WORKDIR $APP_ROOT
+ARG APP_ROOT="/magento"                                                |  ----------------------------------------------------------------------
+WORKDIR $APP_ROOT     
 
 # https://github.com/php/php-src/blob/17baa87faddc2550def3ae7314236826bc1b1398/sapi/fpm/php-fpm.8.in#L163
 STOPSIGNAL SIGQUIT
@@ -172,4 +173,5 @@ EXPOSE 9000
 
 
 CMD ["php-fpm", "-R"]
+
 
