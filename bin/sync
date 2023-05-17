@@ -25,6 +25,9 @@ PROJECT_NAME=$(m_projectName)
 ## "${MDEV}" exec app killall mutagen-agent
 APP_CONTAINER=$(m_containerNameByService "app")
 
+echo "app name : $APP_CONTAINER" 
+echo "MDEV DIR : $MDEV_DIR" 
+
 COMMAND="${1:-start}"
 
 ## sub-command execution
@@ -35,6 +38,8 @@ case "$COMMAND" in
     ;;
 
     start)
+        set -x
+        mutagen sync terminate --label-selector "$PROJECT_NAME"
         # sync files from local to docker immediately,
         # local is alpha here, so it will rewrite all your changes made on the docker side
         mutagen sync create ${MDEV_DIR}/src docker://${APP_CONTAINER}/magento \
