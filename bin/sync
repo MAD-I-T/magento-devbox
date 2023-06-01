@@ -42,7 +42,7 @@ case "$COMMAND" in
         mutagen sync terminate --label-selector "$PROJECT_NAME"
         # sync files from local to docker immediately,
         # local is alpha here, so it will rewrite all your changes made on the docker side
-        mutagen sync create ${MDEV_DIR}/src docker://${APP_CONTAINER}/magento \
+        mutagen sync create ${MDEV_DIR}/src/magento docker://${APP_CONTAINER}/magento \
             --name "$PROJECT_NAME-to-docker" \
             --label "$PROJECT_NAME" \
             --symlink-mode=posix-raw \
@@ -62,7 +62,7 @@ case "$COMMAND" in
             --ignore=vendor \
             --ignore-vcs
 
-        mutagen sync create docker://${APP_CONTAINER}/magento/app/etc  ${MDEV_DIR}/src/app/etc \
+        mutagen sync create docker://${APP_CONTAINER}/magento/app/etc  ${MDEV_DIR}/src/magento/app/etc \
             --name "$PROJECT_NAME-etc-from-docker" \
             --label "$PROJECT_NAME" \
             --symlink-mode=posix-raw \
@@ -72,7 +72,7 @@ case "$COMMAND" in
             --ignore=.idea \
             --ignore-vcs
 
-        mutagen sync create docker://${APP_CONTAINER}/magento/vendor  ${MDEV_DIR}/src/vendor \
+        mutagen sync create docker://${APP_CONTAINER}/magento/vendor  ${MDEV_DIR}/src/magento/vendor \
             --name "$PROJECT_NAME-vendor-from-docker" \
             --label "$PROJECT_NAME" \
             --symlink-mode=posix-raw \
@@ -82,7 +82,7 @@ case "$COMMAND" in
             --watch-mode-beta=no-watch  \
             --ignore=.idea
 
-        mutagen sync create docker://${APP_CONTAINER}/magento/generated  ${MDEV_DIR}/src/generated \
+        mutagen sync create docker://${APP_CONTAINER}/magento/generated  ${MDEV_DIR}/src/magento/generated \
             --name "$PROJECT_NAME-generated-from-docker" \
             --label "$PROJECT_NAME" \
             --symlink-mode=posix-raw \

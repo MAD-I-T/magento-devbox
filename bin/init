@@ -9,7 +9,7 @@ set -x
 ## sub-command execution
 case "$COMMAND" in
     template)
-        git clone https://github.com/magento/magento-cloud --branch 2.4.5  --depth 1 src
+        git clone https://github.com/magento/magento-cloud --branch 2.4.5  --depth 1 src/magento
     ;;
     git)
         "${MDEV}" sync stop
@@ -17,7 +17,7 @@ case "$COMMAND" in
         #rm -r src
         #git clone --branch 2.4-develop --depth 100 https://github.com/magento/magento2.git src
         #find src -depth 1 | xargs -I{} docker cp {}  "$(m_containerNameByService "app"):/magento"
-        find src -mindepth 1 -maxdepth 1 | xargs -I{} docker cp {}  "$(m_containerNameByService "app"):/magento"
+        find src/magento -mindepth 1 -maxdepth 1 | xargs -I{} docker cp {}  "$(m_containerNameByService "app"):/magento"
         #docker cp ./src/  "$(m_containerNameByService "app"):/magento"
         "${MDEV}" sync
     ;;
@@ -25,9 +25,9 @@ case "$COMMAND" in
         "${MDEV}" sync stop
         "${MDEV}" exec app bash -c "rm -rf *"
         rm -r src
-        git clone --branch 2.4-develop --depth 100 https://github.com/magento/magento2.git src
-        git clone --branch 2.4-develop --depth 100 git@github.com:magento-commerce/magento2ee.git src/ee
-        find src -d 1 | xargs -I{} docker cp {}  "$(m_containerNameByService "app"):/magento"
+        git clone --branch 2.4-develop --depth 100 https://github.com/magento/magento2.git src/magento
+        git clone --branch 2.4-develop --depth 100 git@github.com:magento-commerce/magento2ee.git src/magento/ee
+        find src/magento -d 1 | xargs -I{} docker cp {}  "$(m_containerNameByService "app"):/magento"
         "${MDEV}" sync
     ;;
     *)
