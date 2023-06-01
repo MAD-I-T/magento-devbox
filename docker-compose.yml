@@ -13,6 +13,8 @@ services:
           - "traefik.enable=true"
           - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_PROJECT_NAME}.${INGRESS_SERVICE_DOMAIN:-mage.perf}`)"
           - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web"
+          - "traefik.docker.network=ingress_web"
+
         networks:
           default:
               aliases:
