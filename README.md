@@ -19,7 +19,9 @@ Inspired by https://github.com/kandy/dev-docker
 
 <h4>Tutorial in video </h4>
 <div align="center">
-  <a href=" https://youtu.be/WD4zuprVV-s"><img src="https://user-images.githubusercontent.com/3765910/243196278-082abc41-1b92-4ec6-b8df-b1718d74b7ec.png" alt="magento local devbox on docker"></a>
+  <a href="https://youtu.be/WD4zuprVV-s">
+    <img src="https://user-images.githubusercontent.com/3765910/243196278-082abc41-1b92-4ec6-b8df-b1718d74b7ec.png" alt="magento local devbox on docker">
+  </a>
 </div>
   
 #### To stop and (re)start existing project
