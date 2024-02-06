@@ -1,14 +1,16 @@
 
 #
-ARG PHP_VERSION=8.1
+ARG PHP_VERSION=8.2
 
-FROM php:${PHP_VERSION}-fpm-alpine3.15 AS build
+FROM php:${PHP_VERSION}-fpm-alpine3.18 AS build
 
 
 RUN apk add --update --no-cache ${PHPIZE_DEPS} bash git tar \
     freetype libpng libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev \
     libsodium-dev \
     libxslt-dev \
+  # https://github.com/docker-library/php/blob/f275451/Dockerfile-linux.template#L257
+    linux-headers \
     icu-dev \
  #  libressl-dev \
     libzip-dev \
@@ -67,7 +69,7 @@ RUN pecl install -o -f redis && docker-php-ext-enable redis
 #RUN pecl install -o -f apcu && docker-php-ext-enable apcu
 
 ARG XDEBUG=0
-ARG XDEBUG_VERSION=3.1.4
+ARG XDEBUG_VERSION=3.2.2
 RUN if [ "$XDEBUG" = "1" ]; then \
       pecl install -o -f xdebug-${XDEBUG_VERSION}  \
       &&  echo Enable xdebug \
@@ -102,7 +104,7 @@ RUN php --version && php -m
 # RUN php -r 'print_r(gd_info());'
 RUN cat /etc/alpine-release
 
-FROM alpine:3.15 AS base
+FROM alpine:3.18 AS base
 
 ENV NOT_ROOT_USER=www-data
 
@@ -164,7 +166,7 @@ RUN rm -rf /var/cache/apk/* \
 
 ### Collapse layers ###
 
-FROM alpine:3.15
+FROM alpine:3.18
 COPY --from=base / .
 
 
