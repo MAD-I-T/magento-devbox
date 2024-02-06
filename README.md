@@ -6,6 +6,7 @@ Inspired by https://github.com/kandy/dev-docker
 
 # Usage
 - clone this repository
+- `mkdir -p src/magento`
 - Copy your magento sources in `src/magento` dir with auth.json
 - Install docker using [official guidelines](https://docs.docker.com/install/)
 - Install docker compose using the same guidelines
