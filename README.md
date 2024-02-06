@@ -5,7 +5,7 @@ A magento docker devbox that takes 5min to lean and 3 min to start (tested on li
 Inspired by https://github.com/kandy/dev-docker 
 
 # Usage
-- Checkout this repository
+- clone this repository
 - Copy your magento sources in `src/magento` dir with auth.json
 - Install docker using [official guidelines](https://docs.docker.com/install/)
 - Install docker compose using the same guidelines
